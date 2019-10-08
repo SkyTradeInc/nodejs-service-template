@@ -1,29 +1,18 @@
-const dotenv = require('dotenv').config()
+const dotenv = require('dotenv')
+const logger = require('./lib/components/logger');
+const path = require('path');
 
-process.title = process.env.WINDOW_TITLE
-const axios = require('axios');
-const express = require('express');
-const mongoose = require('mongoose');
-const chalk = require('chalk');
-const app = express();
-const cors = require('cors');
-const port = process.env.PORT || 8080;
+process.env.NODE_ENV = process.env.NODE_ENV || 'dev';
 
-const socket = require('socket.io');
-const server = app.listen(port, () => {
-  const io = module.exports = socket(server);
-  console.log(chalk.green(`[+] Listening on port: ${(port)}`))
-  const router = require('./routes/');
-  app.use(express.json());
-  app.use(cors());
-  app.use('/', router)
+if (process.env.NODE_ENV === 'dev') {
+    logger.info(`Loading Environment Variables from ${process.env.NODE_ENV}.env`);
+    dotenv.config( { path: path.resolve(process.cwd(), `./environments/${process.env.NODE_ENV}/.env`) });
+}
+
+const chalk = require('chalk')
+
+const server = require('./lib/server.js')
+const port = process.env.SERVER_PORT || 9899;
+server.listen(port, () => {
+  console.log(chalk.green(`[+] Listening on port: ${port}`))
 })
-
-// mongoose.connect(`mongodb://127.0.0.1/${process.env.MONGO_DB || "test"}`, { useNewUrlParser: true });
-//   mongoose.connection.on('connected', () => {
-//   console.log(chalk.green(`[!] Connected to MongoD`));
-// });
-//
-// mongoose.connection.on('error', (err) => {
-//   console.log(chalk.red(`[X] ${err}`))
-// });
